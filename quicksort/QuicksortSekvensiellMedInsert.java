@@ -1,10 +1,13 @@
-class QuickSortSekvensiell{
+class QuickSortSekvensiellMedInsert{
 
     int[] quickSort(int[] tallArray, int lav, int hoy){
-        if(lav < hoy){
+        if(hoy - lav > 10){
             int dreiepunkt = partisjon(tallArray, lav, hoy);
             quickSort(tallArray, lav, dreiepunkt - 1);
             quickSort(tallArray, dreiepunkt + 1, hoy);
+        }
+        else{
+            innstikkSortering(tallArray, lav, hoy);
         }
         return tallArray;
     }
@@ -25,6 +28,24 @@ class QuickSortSekvensiell{
         tallArray[hoy] = tallArray[dreiepunkt];
         tallArray[dreiepunkt] = midlertidig;
         return dreiepunkt;
+    }
+
+    private void innstikkSortering(int[] tallArray, int lav, int hoy){
+        int i = lav+1;
+        while(i <= hoy){
+            int j = i;
+            while (j > lav){
+                if (tallArray[j] < tallArray[j-1]){
+                    int midlertidig = tallArray[j];
+                    tallArray[j] = tallArray[j-1];
+                    tallArray[j-1] = midlertidig;
+                    j--;
+                }else{
+                    break;
+                }
+            }
+            i++;
+        }
     }
 
 

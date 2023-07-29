@@ -1,4 +1,5 @@
 import java.util.concurrent.CyclicBarrier;
+import static java.lang.Thread.startVirtualThread;
 
 public class SieveParallelVirtual {
     int n, root, numOfPrimes, c;
@@ -27,9 +28,9 @@ public class SieveParallelVirtual {
             int start = (int) Math.ceil((double) i * (ps/16/cores));
 
             int stop = (int) Math.ceil((double) ((i+1) * (ps/16/cores)));
-
-            SieveThread p = new SieveThread(start, stop, firstPrimes, oddNumbers);
-            Thread.startVirtualThread(p);
+            //SieveThread p = new SieveThread(start, stop, firstPrimes, oddNumbers);
+            startVirtualThread(new SieveThread(start, stop, firstPrimes, oddNumbers));
+            // Thread.startVirtualThread(p);
         }
         try{
             cb.await();
@@ -48,6 +49,8 @@ public class SieveParallelVirtual {
         if (n <= 1) return new int[0];
 
         sieve();
+    
+        numOfPrimes = 0;
 
         for (int i = 1; i <= n; i += 2){
             if (isPrime(i)){

@@ -109,7 +109,7 @@ public class SieveParallelMaskedVirtual {
                 numOfPrimes++;
             }
         }
-        int[] primes = new int[numOfPrimes+1];
+        int[] primes = new int[numOfPrimes];
         
         primes[0] = 2;
         primes[1] = 3;
@@ -118,7 +118,7 @@ public class SieveParallelMaskedVirtual {
 
         int j = 4;
 
-        for (int i = 11; i <= n; i+= 2){
+        for (int i = 11; i < n; i+= 2){
             if (isPrime(i)){
                 primes[j++] = i;
             }
@@ -205,8 +205,8 @@ public class SieveParallelMaskedVirtual {
         System.out.println(timeTaken);
         // 2147483646
         int[] sp_liste = sp.getPrimes();
-        // for (int i = 0; i < sp_liste.length; i++){
-            // System.out.println(sp_liste[i]);
-        // }
+        for (int i = 0; i < sp_liste.length; i++){
+            System.out.println(sp_liste[i]);
+        }
     }
 }

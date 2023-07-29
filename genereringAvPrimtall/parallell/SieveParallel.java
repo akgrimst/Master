@@ -49,6 +49,7 @@ public class SieveParallel {
         if (n <= 1) return new int[0];
 
         sieve();
+        numOfPrimes = 0;
 
         for (int i = 1; i <= n; i += 2){
             if (isPrime(i)){
