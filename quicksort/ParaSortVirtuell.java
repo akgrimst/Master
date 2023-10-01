@@ -3,7 +3,7 @@ import java.security.spec.ECFieldF2m;
 import java.util.Arrays;
 import java.util.Random;
 
-public class ParaSort {
+public class ParaSortVirtuell {
     CyclicBarrier[] segBarriers;
     CyclicBarrier cb;
     int[] pivot;
@@ -17,7 +17,7 @@ public class ParaSort {
             long traad_lav = i * (hoyre-venstre + 1) / k;
             long traad_hoy = (i+1) * (hoyre-venstre + 1) / k - 1;
             ParaTraad traad = new ParaTraad(arr, traad_lav, traad_hoy, i, (long) venstre, (long) hoyre, 0, k-1, (int) i);
-            Thread.ofPlatform().start(traad);
+            Thread.ofVirtual().start(traad);
         }
         try{
             cb.await();
@@ -57,7 +57,7 @@ public class ParaSort {
 
     void traad_funksjon(int[] arr, long lav, long hoy, long traad_nr, long arr_lav, long arr_hoy, long lav_traad, long hoy_traad, long traad_id) throws InterruptedException{
         
-        // System.out.println("Tråd: " + traad_id + " lav: " + arr_lav + " hoy: " + arr_hoy);
+        // System.out.println("Tråd: " + traad_id + " lav: " + lav + " hoy: " + hoy);
         int barr_indeks = (int) traad_id - (int) traad_nr;
         int m = (int) arr_lav + ((int) arr_hoy- (int) arr_lav + 1)/2;
         int[] valg = {arr[m-1], arr[m], arr[m+1]};
@@ -274,7 +274,6 @@ public class ParaSort {
                 }
             }else{
                 // System.out.println("Kom hit");
-                // long partisjon_storrelse = (arr_hoy - arr_lav) / hoy_traad;
                 if (pivot_index < (arr_hoy + arr_lav) / 2){
                     // System.out.println("før pivot er minst");
                     if (traad_nr == 0){
@@ -333,13 +332,6 @@ public class ParaSort {
             }
         }else{
             long ant_traader = hoy_traad - lav_traad + 1;
-            // long traader_under_pivot = (pivot_index - arr_lav) / (hoy - lav + 1);
-            // if (hoy < pivot_index){
-            //     System.out.println("Tråd: " + traad_id + " lav: " + arr_lav + " hoy: " + arr_hoy + " mindre enn pivot: " + pivot_index + " lave: " + traader_under_pivot + " anttraader: " + ant_traader);
-            // }else{
-            //     System.out.println("Tråd: " + traad_id + " lav: " + arr_lav + " hoy: " + hoy + " storre enn pivot: " + pivot_index + " hoye: " + (ant_traader - traader_under_pivot) + " anttraader: " + ant_traader);
-            // }
-            
             if (traad_nr == lav_traad){
                 segBarriers[(int)traad_id+1] = new CyclicBarrier((int) ant_traader/2);
                 try{
@@ -478,14 +470,14 @@ public class ParaSort {
 
 
     public static void main(String[] args) {
-        int storrelse = 1000;
+        int storrelse = 10000000;
         int[] testArr = new LagListe().nyttArray(storrelse, 5814);
-        // int[] test2Arr = new LagListe().nyttArray(storrelse, 5814);
-        // Arrays.sort(test2Arr);
-        ParaSort para = new ParaSort();
+        int[] test2Arr = new LagListe().nyttArray(storrelse, 5814);
+        Arrays.sort(test2Arr);
+        ParaSortVirtuell para = new ParaSortVirtuell();
         // para.sekvensiellKvikkSort(testArr, 0, storrelse-1);
         try{
-            para.paraSort(64, testArr, 0, storrelse-1);
+            para.paraSort(27, testArr, 0, storrelse-1);
         }catch(InterruptedException e){}
         for (int i = 0; i < storrelse; i++){
             // System.out.println(i + " arr2 " + test2Arr[i]);
@@ -493,12 +485,13 @@ public class ParaSort {
             if (i > 0){
                 if (testArr[i] < testArr[i-1]){
                     System.out.println("Break i" + i + " arr[i]: " + testArr[i] + " arr[i-1]: " + testArr[i-1]);
+                    break;
                 }
             }
-            // if (test2Arr[i] != testArr[i]){
-            //     System.out.println("BREAK: " + i + " test2: " + test2Arr[i] + " test: " + testArr[i]);
-            //     break;
-            // }
+            if (test2Arr[i] != testArr[i]){
+                System.out.println("BREAK: " + i + " test2: " + test2Arr[i] + " test: " + testArr[i]);
+                break;
+            }
         }
     }
 }

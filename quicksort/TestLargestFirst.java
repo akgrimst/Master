@@ -1,9 +1,10 @@
 import java.util.Arrays;
 public class TestLargestFirst {
     public static void main(String[] args) {
+        int testStorrelse = 100000000;
         
         // System.out.println("Sekvensiell:");
-        // for (int i = 10000000; i >= 1000; i = i / 10){
+        // for (int i = testStorrelse; i >= 1000; i = i / 10){
         //     long timeTaken[] = new long[9];
         //     for (int j = 0; j < 9; j++){
         //         int[] testArr = new LagListe().nyttArray(i, j);
@@ -17,7 +18,7 @@ public class TestLargestFirst {
         // }
 
         // System.out.println("Sekvensiell med innstikksortering:");
-        // for (int i = 10000000; i >= 1000; i = i / 10){
+        // for (int i = testStorrelse; i >= 1000; i = i / 10){
         //     long timeTaken[] = new long[9];
         //     for (int j = 0; j < 9; j++){
         //         int[] testArr = new LagListe().nyttArray(i, 0);
@@ -62,7 +63,7 @@ public class TestLargestFirst {
         // }
 
         System.out.println("Parallell lag plattform:");
-        for (int i = 10000000; i >= 1000; i = i / 10){
+        for (int i = testStorrelse; i > 1000; i = i / 10){
             long timeTaken[] = new long[9];
             for (int j = 0; j < 9; j++){
                 int[] testArr = new LagListe().nyttArray(i, 0);
@@ -78,7 +79,7 @@ public class TestLargestFirst {
         }
 
         System.out.println("Parallell lag virtuell:");
-        for (int i = 10000000; i >= 1000; i = i / 10){
+        for (int i = testStorrelse; i > 1000; i = i / 10){
             long timeTaken[] = new long[9];
             for (int j = 0; j < 9; j++){
                 int[] testArr = new LagListe().nyttArray(i, 0);
@@ -93,29 +94,31 @@ public class TestLargestFirst {
             System.out.printf("%.3f%n", timeTaken[4] / 1000000.0);        
         }
 
-        // System.out.println("Parallell plattform med sekvensiell:");
-        // for (int i = 10000000; i >= 1000; i = i / 10){
-        //     long timeTaken[] = new long[9];
-        //     for (int j = 0; j < 9; j++){
-        //         int[] testArr = new LagListe().nyttArray(i, 0);
-        //         long startTime = System.nanoTime();
-        //         KvikksortParallellPlattformHalvpartenTraader s = new KvikksortParallellPlattformHalvpartenTraader();
-        //         try{s.quickSort(testArr, 0, i-1);}
-        //         catch(Exception e){}
-        //         timeTaken[j] = System.nanoTime() - startTime;
-        //     }
-        //     Arrays.sort(timeTaken);
-        //     System.out.printf("%.3f%n", timeTaken[4] / 1000000.0);        
-        // }
+        System.out.println("Parallell plattform med sekvensiell:");
+        for (int i = testStorrelse; i > 1000; i = i / 10){
+            long timeTaken[] = new long[9];
+            for (int j = 0; j < 9; j++){
+                int[] testArr = new LagListe().nyttArray(i, 0);
+                long startTime = System.nanoTime();
+                KvikksortParallellPlattformHalvpartenTraader s = new KvikksortParallellPlattformHalvpartenTraader();
+                try{s.quickSort(testArr, 0, i-1);}
+                catch(Exception e){}
+                timeTaken[j] = System.nanoTime() - startTime;
+            }
+            Arrays.sort(timeTaken);
+            System.out.printf("%.3f%n", timeTaken[4] / 1000000.0);        
+        }
 
         System.out.println("Parallell virtuell med sekvensiell:");
-        for (int i = 10000000; i >= 1000; i = i / 10){
+        for (int i = testStorrelse; i > 1000; i = i / 10){
             long timeTaken[] = new long[9];
             for (int j = 0; j < 9; j++){
                 int[] testArr = new LagListe().nyttArray(i, j);
                 long startTime = System.nanoTime();
                 QuicksortParallellMedSekvensiellVirtuell s = new QuicksortParallellMedSekvensiellVirtuell();
-                try{s.quickSort(testArr, 0, i-1);}
+                try{
+                    s.quickSort(testArr, 0, i-1);
+                }
                 catch(Exception e){}
                 timeTaken[j] = System.nanoTime() - startTime;
                 // System.out.println(timeTaken[j]);
