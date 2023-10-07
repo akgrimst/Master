@@ -86,6 +86,7 @@ public class ParaSortV3 {
         }else{
             pivot[(int) traad_id] = (int) (dreiepunkt-lav);
         }
+        System.out.println("Tråd: " + traad_id + " dreiepunkt: " + (dreiepunkt - lav));
         try{
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
@@ -101,9 +102,13 @@ public class ParaSortV3 {
 
         long store_til_venstre = 0;
         for (long i = lav_traad; i <= hoy_traad; i++){
-            long traad_lav =  arr_lav + i * (arr_hoy-arr_lav + 1) / (hoy_traad + 1);
+            long traad_lav = arr_lav + i * (arr_hoy-arr_lav + 1) / (hoy_traad + 1);
+            
             if (traad_lav < pivot_index){
-                long traad_hoy =  arr_lav + (i+1) * (arr_hoy-arr_lav + 1) / (hoy_traad + 1) - 1;
+                long traad_hoy = arr_lav + (i+1) * (long) (arr_hoy-arr_lav + 1) / (long) (hoy_traad + 1) - 1;
+                if (traad_id == 57){
+                    System.out.println("Arrlav: " + arr_lav + " arrhoy: " + arr_hoy + " Trådlav: " + traad_lav + " :: " + arr[(int) traad_lav] + " Trådhøy: " + traad_hoy + " :: " + arr[(int) traad_hoy] + " storetilvenstre: " + store_til_venstre + " nyindeksering lav: " + nyIndeksering(arr_lav, arr_hoy, i, hoy_traad + 1) + " nyindeksering hoy: " + (nyIndeksering(arr_lav, arr_hoy, i + 1, hoy_traad + 1) - 1));
+                }
                 if (traad_hoy < pivot_index){
                     store_til_venstre += traad_hoy - (traad_lav + pivot[(int) (barr_indeks + i)] - 1);
                 }else{
@@ -117,6 +122,11 @@ public class ParaSortV3 {
                 break;
             }
         }
+        // if (traad_id == 57){
+        //     for (int i = (int) arr_lav; i <= arr_hoy; i++){
+        //         System.out.println(i + " : " + arr[i]);
+        //     }
+        // }
 
         try{
             segBarriers[barr_indeks].await();
@@ -126,11 +136,20 @@ public class ParaSortV3 {
 
         long start_nr_long = (long)(traad_nr * store_til_venstre) / (hoy_traad + 1);
         long slutt_nr_long = (long)(((traad_nr + 1) * store_til_venstre) / (hoy_traad + 1)) - 1;
+        System.out.println("Tråd: " + traad_id + " startnr: " + start_nr_long + " sluttnr: " + slutt_nr_long + " storetilvenstre: " + store_til_venstre + " pivotindeks: " + pivot_index);
         int start_nr = (int) start_nr_long;
         int slutt_nr = (int) slutt_nr_long;
         int storre_funnet = 0;
         int venstre_start_partisjon = 0;
         int venstre_partisjon_indeks = 0;
+        if (slutt_nr < start_nr){
+            try{
+            segBarriers[barr_indeks].await();
+            segBarriers[barr_indeks].await();
+            }catch(Exception e){}
+            delOppTraader(arr, lav, hoy, traad_nr, arr_lav, arr_hoy, lav_traad, hoy_traad, traad_id, barr_indeks, pivot_index);
+            return;
+        }
         for (int i = 0; i < (hoy_traad-lav_traad+1); i++){
             long start_indeks_long = (long) arr_lav + (i * (arr_hoy-arr_lav + 1))/(hoy_traad + 1);
             long slutt_indeks_long = (long) arr_lav + ((i+1) * (arr_hoy-arr_lav + 1))/(hoy_traad + 1) - 1;
@@ -185,49 +204,50 @@ public class ParaSortV3 {
             long arr_lav_long = (long) arr_lav;
             long arr_hoy_long = (long) arr_hoy;
             long mindre_tall = (long)  arr_lav_long + (hoyre_start_partisjon * (arr_hoy_long-arr_lav_long + 1) / (hoy_traad-lav_traad+1)) + hoyre_partisjon_indeks;
-            if ( i == start_nr){
-            }
+            
             if (mindre_tall == (long) arr_lav + (hoyre_start_partisjon * (arr_hoy-arr_lav + 1) / (hoy_traad-lav_traad+1)) - 1){
                 for (long j = hoyre_start_partisjon - 1; j > 0; j--){
-                    if (pivot[(int) (barr_indeks + j)] > 0){
+                    if (pivot[(int) (barr_indeks + j)] == 0){
+                        
+                    }
+                    // else if (pivot[(int) (barr_indeks + j)] > 0){
+                    else{
                         hoyre_start_partisjon = j;
                         hoyre_partisjon_indeks = pivot[(int) (barr_indeks + j)] - 1;
                         mindre_tall = (long) arr_lav + (hoyre_start_partisjon * (arr_hoy-arr_lav + 1) / (hoy_traad-lav_traad+1)) + hoyre_partisjon_indeks;
                         hoyre_partisjon_indeks--;
                         break;
-                    }else if(pivot[(int) (barr_indeks + j)] == 0){
-                        break;
-                    }else{
-                        
                     }
                 }
             }else{
                 hoyre_partisjon_indeks--;
             }
+
+            System.out.println("Tråd: " + traad_id + " storrefør: " + midlertidig + " mindreetter: " + arr[(int) mindre_tall] + " storreindeks: " + storre_tall + " mindreindeks: " + mindre_tall + " dreietapp: " + dreietapp);
             arr[(int) storre_tall] = arr[(int) mindre_tall];
             arr[(int) mindre_tall] = midlertidig;
         }
         try{
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
-        if (traad_id == barr_indeks)
+        if (traad_nr == 0)
         {
             for (int i = (int) arr_lav; i <= arr_hoy; i++)
             {
-                System.out.println(arr[i]);
+                // System.out.println(i + " " + arr[i]);
                 if (i < pivot_index && arr[i] > dreietapp)
                 {
-                    System.out.println("Tråd: " + traad_id + " HER ER DET FEIL FØR PIVOT: " + dreietapp + " " + pivot_index);
+                    System.out.println("Tråd: " + traad_id + " HER ER DET FEIL FØR PIVOT: " + dreietapp + " funnet: " + arr[i]+ " " + pivot_index + " i: " + i + " anttraader: " + (hoy_traad+1) + " storreunder: " + store_til_venstre);
                     Thread.sleep(1000);
                 }
-                if (i >= pivot_index && arr[i] < dreietapp)
+                else if (i >= pivot_index && arr[i] < dreietapp)
                 {
-                    System.out.println("Tråd: " + traad_id + " HER ER DET FEIL ETTER PIVOT: " + dreietapp + " " + pivot_index);
+                    System.out.println("Tråd: " + traad_id + " HER ER DET FEIL ETTER PIVOT: " + dreietapp + " funnet: " + arr[i]+ " " + pivot_index + " i: " + i + " anttraader: " + (hoy_traad+1) + " storreunder: " + store_til_venstre);
                     Thread.sleep(1000);
                 }
             }
         }
-        Thread.sleep(1000);
+        
         try{
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
@@ -237,6 +257,7 @@ public class ParaSortV3 {
 
     void delOppTraader(int[] arr, long lav, long hoy, long traad_nr, long arr_lav, long arr_hoy, long lav_traad, long hoy_traad, long traad_id, int barr_indeks, int pivot_indeks)
     {
+        System.out.println("Tråd: " + traad_id + " deloppstartet lav: " + lav + " hoy: " + hoy + " hoytraad: " + hoy_traad);
         
         if (hoy_traad <= 2)
         {
@@ -271,7 +292,7 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                         }catch (Exception e){}
-                        System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + arr_lav + " hoy: " + (pivot_indeks - 1));
+                        System.out.println("Tråd: " + traad_id + " nr. 1 sekvensiell lav: " + arr_lav + " hoy: " + (pivot_indeks - 1));
                         sekvensiellKvikkSort(arr, (int) arr_lav, pivot_indeks - 1);
                     }
                     else if (traad_nr == 1)
@@ -280,8 +301,9 @@ public class ParaSortV3 {
                         try
                         {
                             segBarriers[barr_indeks].await();
-                            System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (pivot_indeks) + " hoy: " + (arr_lav + (arr_hoy - pivot_indeks) / 2 - 1));
-                            traad_funksjon(arr, pivot_indeks, arr_lav + (arr_hoy - pivot_indeks) / 2 - 1, 0, pivot_indeks, arr_hoy, 0, 1, traad_id);
+                            long ny_hoy = nyIndeksering(pivot_indeks, arr_hoy, 1, 2) - 1;
+                            // System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (pivot_indeks) + " hoy: " + (arr_lav + (arr_hoy - pivot_indeks) / 2 - 1));
+                            traad_funksjon(arr, pivot_indeks, ny_hoy, 0, pivot_indeks, arr_hoy, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
                     else
@@ -289,8 +311,9 @@ public class ParaSortV3 {
                         try
                         {
                             segBarriers[barr_indeks].await();
-                            System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (arr_lav + (arr_hoy - pivot_indeks) / 2) + " hoy: " + arr_hoy);
-                            traad_funksjon(arr, arr_lav + (arr_hoy - pivot_indeks) / 2, arr_hoy, 1, pivot_indeks, arr_hoy, 0, 1, traad_id);
+                            long ny_lav = nyIndeksering(pivot_indeks, arr_hoy, 1, 2);
+                            // System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (arr_lav + (arr_hoy - pivot_indeks) / 2) + " hoy: " + arr_hoy);
+                            traad_funksjon(arr, ny_lav, arr_hoy, 1, pivot_indeks, arr_hoy, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
                 }
@@ -302,7 +325,7 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                         }catch (Exception e){}
-                        System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + pivot_indeks + " hoy: " + arr_hoy);
+                        System.out.println("Tråd: " + traad_id + " nr. 3 sekvensiell lav: " + pivot_indeks + " hoy: " + arr_hoy);
                         sekvensiellKvikkSort(arr, pivot_indeks, (int) arr_hoy);
                     }
                     else if (traad_nr == 0)
@@ -313,8 +336,9 @@ public class ParaSortV3 {
                             segBarriers[barr_indeks].await();
                             segBarriers[barr_indeks] = new CyclicBarrier(2);
                             segBarriers[barr_indeks + 1].await();
-                            System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + arr_lav + " hoy: " + (arr_lav + (pivot_indeks - 1 - arr_lav) / 2 - 1));
-                            traad_funksjon(arr, arr_lav, arr_lav + (pivot_indeks - 1 - arr_lav) / 2 - 1, 0, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
+                            long ny_lav = nyIndeksering(arr_lav, pivot_indeks-1, traad_nr, 2);
+                            long ny_hoy = nyIndeksering(arr_lav, pivot_indeks - 1, traad_nr + 1, 2) - 1;
+                            traad_funksjon(arr, ny_lav, ny_hoy, 0, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
                     else
@@ -323,8 +347,9 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                             segBarriers[barr_indeks + 1].await();
-                            System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (arr_lav + (pivot_indeks - 1 - arr_lav) / 2) + " hoy: " + (pivot_indeks - 1));
-                            traad_funksjon(arr, arr_lav + (pivot_indeks - 1 - arr_lav) / 2, pivot_indeks - 1, 1, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
+                            long ny_lav = nyIndeksering(arr_lav, pivot_indeks-1, traad_nr, 2);
+                            long ny_hoy = nyIndeksering(arr_lav, pivot_indeks - 1, traad_nr + 1, 2) - 1;
+                            traad_funksjon(arr, ny_lav, pivot_indeks - 1, 1, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
                 }
@@ -393,10 +418,14 @@ public class ParaSortV3 {
                             segBarriers[barr_indeks + 1].await();
                         } catch (Exception e){}
                     }
-                    long ny_lav = traad_nr * ((long) pivot_indeks - arr_lav) / hoy_traad;
-                    long ny_hoy = (traad_nr + 1) * ((long) pivot_indeks - arr_lav) / hoy_traad - 1;
+                    // long ny_lav = traad_nr * ((long) pivot_indeks - arr_lav) / hoy_traad;
+                    // long ny_hoy = (traad_nr + 1) * ((long) pivot_indeks - arr_lav) / hoy_traad - 1;
+                    long ny_lav = nyIndeksering(arr_lav, pivot_indeks-1, traad_nr, hoy_traad);
+                    long ny_hoy = nyIndeksering(arr_lav, pivot_indeks - 1, traad_nr + 1, hoy_traad) - 1;
+                    // System.out.println("nynylav: " + nynylav + " nynyhoy: " + nynyhoy);
                     try
                     {
+                        
                         traad_funksjon(arr, ny_lav, ny_hoy, traad_nr, arr_lav, pivot_indeks - 1, 0, hoy_traad - 1, traad_id);
                     } catch (Exception e){}
                 }
@@ -464,6 +493,9 @@ public class ParaSortV3 {
                         long ny_lav = arr_lav + traad_nr * ((long) pivot_indeks - arr_lav) / (traader_under_pivot);
                         long ny_hoy = arr_lav + (traad_nr + 1) * ((long) pivot_indeks - arr_lav) / (traader_under_pivot) - 1;
                         // System.out.println("Tråd: " + traad_id + " lavavdeling");
+                        if (traad_id == 57 || traad_id == 56 || traad_id == 58){
+                            System.out.println("trådrn: " + traad_nr + " arrlav: " + arr_lav + " pivotindeks: " + pivot_indeks + " tråderunderpivot: " + traader_under_pivot);
+                        }
                         traad_funksjon(arr, ny_lav, ny_hoy, traad_nr, arr_lav, pivot_indeks - 1, 0, traader_under_pivot - 1, traad_id);
                     } catch (Exception e){}
                 }
@@ -477,6 +509,9 @@ public class ParaSortV3 {
                         long ny_lav = (long) pivot_indeks + (ny_traadnr) * (arr_hoy - (long) pivot_indeks + 1) / (hoy_traad - traader_under_pivot + 1);
                         long ny_hoy = (long) pivot_indeks + (ny_traadnr + 1) * ((long) arr_hoy - (long) pivot_indeks + 1) / (hoy_traad - traader_under_pivot + 1) - 1;
                         // System.out.println("Tråd: " + traad_id + " hoyavdeling");
+                        if (traad_id == 58 || traad_id == 56 || traad_id == 57){
+                            System.out.println("trådrn: " + ny_traadnr + " arrhoy: " + arr_hoy + " pivotindeks: " + pivot_indeks + " hoytråd: " + hoy_traad + " tråderunderpivot: " + traader_under_pivot + " nylav: " + ny_lav + " nyhoy: " + ny_hoy);
+                        }
                         traad_funksjon(arr, ny_lav, ny_hoy, ny_traadnr, pivot_indeks, arr_hoy, 0, hoy_traad - traader_under_pivot, traad_id);
                     } catch (Exception e){}
                 }
@@ -500,6 +535,12 @@ public class ParaSortV3 {
             innstikkSortering(tallArray, lav, hoy);
         }
         return tallArray;
+    }
+
+    long nyIndeksering(long lav, long hoy, long traad_nr, long ant_traader)
+    /* Finner ny inndeling,  lav eller hoy */
+    {
+        return (long) (lav + traad_nr * (long) (hoy - lav + 1) / ant_traader);
     }
 
     int partisjon(int[] tallArray, int lav, int hoy){
@@ -559,18 +600,18 @@ public class ParaSortV3 {
         try{
             para.paraSort(64, testArr, 0, storrelse-1);
         }catch(InterruptedException e){}
-        // for (int i = 0; i < storrelse; i++){
-        //     // System.out.println(i + " arr2 " + test2Arr[i]);
-        //     System.out.println(i + " arr1 " + testArr[i]);
-        //     if (i > 0){
-        //         if (testArr[i] < testArr[i-1]){
-        //             System.out.println("Break i " + i + " arr[i]: " + testArr[i] + " arr[i-1]: " + testArr[i-1]);
-        //         }
-        //     }
-        //     // if (test2Arr[i] != testArr[i]){
-        //     //     System.out.println("BREAK: " + i + " test2: " + test2Arr[i] + " test: " + testArr[i]);
-        //     //     break;
-        //     // }
-        // }
+        for (int i = 0; i < storrelse; i++){
+            // System.out.println(i + " arr2 " + test2Arr[i]);
+            System.out.println(i + " arr1 " + testArr[i]);
+            if (i > 0){
+                if (testArr[i] < testArr[i-1]){
+                    System.out.println("Break i " + i + " arr[i]: " + testArr[i] + " arr[i-1]: " + testArr[i-1]);
+                }
+            }
+            if (test2Arr[i] != testArr[i]){
+                System.out.println("BREAK: " + i + " test2: " + test2Arr[i] + " test: " + testArr[i]);
+                break;
+            }
+        }
     }
 }
