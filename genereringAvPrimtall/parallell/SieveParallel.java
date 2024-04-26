@@ -24,9 +24,9 @@ public class SieveParallel {
 
             double ps = n;
 
-            int start = (int) Math.ceil((double) i * (ps/16/cores));
+            int start = (int) Math.ceil((double) i * (ps/cores));
 
-            int stop = (int) Math.ceil((double) ((i+1) * (ps/16/cores)));
+            int stop = (int) Math.ceil((double) ((i+1) * (ps/cores)));
 
             SieveThread p = new SieveThread(start, stop, firstPrimes, oddNumbers);
             Thread t = new Thread(p);
@@ -77,8 +77,9 @@ public class SieveParallel {
         byte[] oddNumbers;
 
         SieveThread(int start, int stop, int[] firstPrimes, byte[] oddNumbers){
-            this.start = start * 16;
-            this.stop = stop * 16;
+            System.out.println(start + " " + stop);
+            this.start = start;
+            this.stop = stop;
             this.firstPrimes = firstPrimes;
             this.oddNumbers = oddNumbers;
 
@@ -91,6 +92,7 @@ public class SieveParallel {
         }
 
         public void run(){
+            System.err.println("start: " + start + " slutt: " + stop);
 
             for (int i = 1; i < firstPrimes.length; i++){
 
@@ -107,7 +109,7 @@ public class SieveParallel {
         }
 
         private void traverse(int prime){
-            int modulo = start%prime;
+            int modulo = start % prime;
             int traverseStart;
 
             if (modulo == 0){
@@ -142,7 +144,7 @@ public class SieveParallel {
         }
     }
     public static void main(String[] args) {
-        SieveParallel sp = new SieveParallel(1000, 32);
+        SieveParallel sp = new SieveParallel(100, 32);
         sp.sieve();
         int[] sp_liste = sp.getPrimes();
         for (int i = 0; i < sp_liste.length; i++){

@@ -3,12 +3,12 @@ import java.security.spec.ECFieldF2m;
 import java.util.Arrays;
 import java.util.Random;
 
-public class ParaSortV3 {
+public class ParaSortPlattform {
     CyclicBarrier[] segBarriers;
     CyclicBarrier cb;
     int[] pivot;
     
-    int[] paraSort(int k, int[] arr, int venstre, int hoyre) throws InterruptedException{
+    public int[] paraSort(int k, int[] arr, int venstre, int hoyre) throws InterruptedException{
         pivot = new int[k];
         segBarriers = new CyclicBarrier[k];
         cb = new CyclicBarrier(k+1, null);
@@ -22,7 +22,6 @@ public class ParaSortV3 {
         try{
             cb.await();
         }catch(Exception e){}
-        // System.out.println("Ferdig");
         
         return arr;
     }
@@ -58,7 +57,6 @@ public class ParaSortV3 {
 
     void traad_funksjon(int[] arr, long lav, long hoy, long traad_nr, long arr_lav, long arr_hoy, long lav_traad, long hoy_traad, long traad_id) throws InterruptedException{
         
-        System.out.println("Tråd: " + traad_id + " arr_lav: " + arr_lav + " arr_hoy: " + arr_hoy + " lav: " + lav + " hoy: " + hoy + " " + hoy_traad);
         int barr_indeks = (int) traad_id - (int) traad_nr;
         int m = (int) arr_lav + ((int) arr_hoy- (int) arr_lav + 1)/2;
         int[] valg = {arr[m-1], arr[m], arr[m+1]};
@@ -69,7 +67,6 @@ public class ParaSortV3 {
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
         // Steg 2
-        // System.out.println("Tråd: " + traad_id + " barrindeks: " + barr_indeks + " Ferdig steg 1");
 
         long dreiepunkt = lav;        
         for (long i = lav; i <= hoy; i++){
@@ -81,17 +78,17 @@ public class ParaSortV3 {
                 dreiepunkt += 1;
             }
         }
+
         if (dreiepunkt-lav > hoy){
             pivot[(int) traad_id] = -1;
         }else{
             pivot[(int) traad_id] = (int) (dreiepunkt-lav);
         }
-        System.out.println("Tråd: " + traad_id + " dreiepunkt: " + (dreiepunkt - lav));
+
         try{
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
         // Steg 3
-        // System.out.println("Tråd: " + traad_id + " barrindeks: " + barr_indeks + " Ferdig steg 2");
 
         int pivot_index = (int) arr_lav;
         for (long i = traad_id - (int) traad_nr; i <= traad_id - traad_nr + hoy_traad; i++){
@@ -106,9 +103,6 @@ public class ParaSortV3 {
             
             if (traad_lav < pivot_index){
                 long traad_hoy = arr_lav + (i+1) * (long) (arr_hoy-arr_lav + 1) / (long) (hoy_traad + 1) - 1;
-                if (traad_id == 57){
-                    System.out.println("Arrlav: " + arr_lav + " arrhoy: " + arr_hoy + " Trådlav: " + traad_lav + " :: " + arr[(int) traad_lav] + " Trådhøy: " + traad_hoy + " :: " + arr[(int) traad_hoy] + " storetilvenstre: " + store_til_venstre + " nyindeksering lav: " + nyIndeksering(arr_lav, arr_hoy, i, hoy_traad + 1) + " nyindeksering hoy: " + (nyIndeksering(arr_lav, arr_hoy, i + 1, hoy_traad + 1) - 1));
-                }
                 if (traad_hoy < pivot_index){
                     store_til_venstre += traad_hoy - (traad_lav + pivot[(int) (barr_indeks + i)] - 1);
                 }else{
@@ -122,21 +116,13 @@ public class ParaSortV3 {
                 break;
             }
         }
-        // if (traad_id == 57){
-        //     for (int i = (int) arr_lav; i <= arr_hoy; i++){
-        //         System.out.println(i + " : " + arr[i]);
-        //     }
-        // }
 
         try{
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
-        // System.out.println("Tråd: " + traad_id + " barrindeks: " + barr_indeks + " pivotindeks: " + pivot_index + " Ferdig steg 3");
-
 
         long start_nr_long = (long)(traad_nr * store_til_venstre) / (hoy_traad + 1);
         long slutt_nr_long = (long)(((traad_nr + 1) * store_til_venstre) / (hoy_traad + 1)) - 1;
-        System.out.println("Tråd: " + traad_id + " startnr: " + start_nr_long + " sluttnr: " + slutt_nr_long + " storetilvenstre: " + store_til_venstre + " pivotindeks: " + pivot_index);
         int start_nr = (int) start_nr_long;
         int slutt_nr = (int) slutt_nr_long;
         int storre_funnet = 0;
@@ -210,7 +196,6 @@ public class ParaSortV3 {
                     if (pivot[(int) (barr_indeks + j)] == 0){
                         
                     }
-                    // else if (pivot[(int) (barr_indeks + j)] > 0){
                     else{
                         hoyre_start_partisjon = j;
                         hoyre_partisjon_indeks = pivot[(int) (barr_indeks + j)] - 1;
@@ -223,30 +208,12 @@ public class ParaSortV3 {
                 hoyre_partisjon_indeks--;
             }
 
-            System.out.println("Tråd: " + traad_id + " storrefør: " + midlertidig + " mindreetter: " + arr[(int) mindre_tall] + " storreindeks: " + storre_tall + " mindreindeks: " + mindre_tall + " dreietapp: " + dreietapp);
             arr[(int) storre_tall] = arr[(int) mindre_tall];
             arr[(int) mindre_tall] = midlertidig;
         }
         try{
             segBarriers[barr_indeks].await();
         }catch(Exception e){}
-        if (traad_nr == 0)
-        {
-            for (int i = (int) arr_lav; i <= arr_hoy; i++)
-            {
-                // System.out.println(i + " " + arr[i]);
-                if (i < pivot_index && arr[i] > dreietapp)
-                {
-                    System.out.println("Tråd: " + traad_id + " HER ER DET FEIL FØR PIVOT: " + dreietapp + " funnet: " + arr[i]+ " " + pivot_index + " i: " + i + " anttraader: " + (hoy_traad+1) + " storreunder: " + store_til_venstre);
-                    Thread.sleep(1000);
-                }
-                else if (i >= pivot_index && arr[i] < dreietapp)
-                {
-                    System.out.println("Tråd: " + traad_id + " HER ER DET FEIL ETTER PIVOT: " + dreietapp + " funnet: " + arr[i]+ " " + pivot_index + " i: " + i + " anttraader: " + (hoy_traad+1) + " storreunder: " + store_til_venstre);
-                    Thread.sleep(1000);
-                }
-            }
-        }
         
         try{
             segBarriers[barr_indeks].await();
@@ -257,7 +224,6 @@ public class ParaSortV3 {
 
     void delOppTraader(int[] arr, long lav, long hoy, long traad_nr, long arr_lav, long arr_hoy, long lav_traad, long hoy_traad, long traad_id, int barr_indeks, int pivot_indeks)
     {
-        System.out.println("Tråd: " + traad_id + " deloppstartet lav: " + lav + " hoy: " + hoy + " hoytraad: " + hoy_traad);
         
         if (hoy_traad <= 2)
         {
@@ -269,7 +235,6 @@ public class ParaSortV3 {
                     {
                         segBarriers[barr_indeks].await();
                     }catch (Exception e){}
-                    System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + arr_lav + " hoy: " + (pivot_indeks - 1));
                     sekvensiellKvikkSort(arr, (int) arr_lav, pivot_indeks - 1);
                 }
                 else
@@ -278,7 +243,6 @@ public class ParaSortV3 {
                     {
                         segBarriers[barr_indeks].await();
                     }catch (Exception e){}
-                    System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + pivot_indeks + " hoy: " + arr_hoy);
                     sekvensiellKvikkSort(arr, pivot_indeks, (int) arr_hoy);
                 }
             }
@@ -292,7 +256,6 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                         }catch (Exception e){}
-                        System.out.println("Tråd: " + traad_id + " nr. 1 sekvensiell lav: " + arr_lav + " hoy: " + (pivot_indeks - 1));
                         sekvensiellKvikkSort(arr, (int) arr_lav, pivot_indeks - 1);
                     }
                     else if (traad_nr == 1)
@@ -302,7 +265,6 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                             long ny_hoy = nyIndeksering(pivot_indeks, arr_hoy, 1, 2) - 1;
-                            // System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (pivot_indeks) + " hoy: " + (arr_lav + (arr_hoy - pivot_indeks) / 2 - 1));
                             traad_funksjon(arr, pivot_indeks, ny_hoy, 0, pivot_indeks, arr_hoy, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
@@ -312,7 +274,6 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                             long ny_lav = nyIndeksering(pivot_indeks, arr_hoy, 1, 2);
-                            // System.out.println("Tråd: " + traad_id + " traadfunksjon lav: " + (arr_lav + (arr_hoy - pivot_indeks) / 2) + " hoy: " + arr_hoy);
                             traad_funksjon(arr, ny_lav, arr_hoy, 1, pivot_indeks, arr_hoy, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
@@ -325,7 +286,6 @@ public class ParaSortV3 {
                         {
                             segBarriers[barr_indeks].await();
                         }catch (Exception e){}
-                        System.out.println("Tråd: " + traad_id + " nr. 3 sekvensiell lav: " + pivot_indeks + " hoy: " + arr_hoy);
                         sekvensiellKvikkSort(arr, pivot_indeks, (int) arr_hoy);
                     }
                     else if (traad_nr == 0)
@@ -336,9 +296,8 @@ public class ParaSortV3 {
                             segBarriers[barr_indeks].await();
                             segBarriers[barr_indeks] = new CyclicBarrier(2);
                             segBarriers[barr_indeks + 1].await();
-                            long ny_lav = nyIndeksering(arr_lav, pivot_indeks-1, traad_nr, 2);
                             long ny_hoy = nyIndeksering(arr_lav, pivot_indeks - 1, traad_nr + 1, 2) - 1;
-                            traad_funksjon(arr, ny_lav, ny_hoy, 0, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
+                            traad_funksjon(arr, arr_lav, ny_hoy, 0, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
                     else
@@ -348,7 +307,6 @@ public class ParaSortV3 {
                             segBarriers[barr_indeks].await();
                             segBarriers[barr_indeks + 1].await();
                             long ny_lav = nyIndeksering(arr_lav, pivot_indeks-1, traad_nr, 2);
-                            long ny_hoy = nyIndeksering(arr_lav, pivot_indeks - 1, traad_nr + 1, 2) - 1;
                             traad_funksjon(arr, ny_lav, pivot_indeks - 1, 1, arr_lav, pivot_indeks - 1, 0, 1, traad_id);
                         }catch (Exception e){}
                     }
@@ -358,7 +316,6 @@ public class ParaSortV3 {
         else
         {
             long traader_under_pivot = (pivot_indeks - arr_lav) / ((arr_hoy - arr_lav) / (hoy_traad + 1));
-            System.out.println("Tråd: " + traad_id + " pivotindeks: " + pivot_indeks + " " + traader_under_pivot);
 
             if (traader_under_pivot == 0)
             {
@@ -368,7 +325,6 @@ public class ParaSortV3 {
                     {
                         segBarriers[barr_indeks].await();
                     } catch (Exception e){}
-                    System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + arr_lav + " hoy: " + (pivot_indeks - 1));
                     sekvensiellKvikkSort(arr, (int) arr_lav, pivot_indeks - 1);
                 }
                 else
@@ -395,7 +351,6 @@ public class ParaSortV3 {
                     {
                         segBarriers[barr_indeks].await();
                     } catch (Exception e){}
-                    System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + pivot_indeks + " hoy: " + arr_hoy);
                     sekvensiellKvikkSort(arr, pivot_indeks, (int) arr_hoy);
                 }
                 else
@@ -418,11 +373,8 @@ public class ParaSortV3 {
                             segBarriers[barr_indeks + 1].await();
                         } catch (Exception e){}
                     }
-                    // long ny_lav = traad_nr * ((long) pivot_indeks - arr_lav) / hoy_traad;
-                    // long ny_hoy = (traad_nr + 1) * ((long) pivot_indeks - arr_lav) / hoy_traad - 1;
                     long ny_lav = nyIndeksering(arr_lav, pivot_indeks-1, traad_nr, hoy_traad);
                     long ny_hoy = nyIndeksering(arr_lav, pivot_indeks - 1, traad_nr + 1, hoy_traad) - 1;
-                    // System.out.println("nynylav: " + nynylav + " nynyhoy: " + nynyhoy);
                     try
                     {
                         
@@ -439,7 +391,6 @@ public class ParaSortV3 {
                         try
                         {
                             segBarriers[barr_indeks].await();
-                            System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + arr_lav + " hoy: " + (pivot_indeks - 1));
                             sekvensiellKvikkSort(arr, (int) arr_lav, pivot_indeks - 1);
                             return;
                         } catch (Exception e){}
@@ -462,7 +413,6 @@ public class ParaSortV3 {
                         try
                         {
                             segBarriers[barr_indeks].await();
-                            System.out.println("Tråd: " + traad_id + " sekvensiell lav: " + pivot_indeks + " hoy: " + arr_hoy);
                             sekvensiellKvikkSort(arr, pivot_indeks, (int) arr_hoy);
                             return;
                         } catch (Exception e){}
@@ -488,14 +438,9 @@ public class ParaSortV3 {
                 {
                     try
                     {
-                        // System.out.println("Tråd: " + traad_id + " før barrier: " + (barr_indeks + 1));
                         segBarriers[barr_indeks + 1].await();
                         long ny_lav = arr_lav + traad_nr * ((long) pivot_indeks - arr_lav) / (traader_under_pivot);
                         long ny_hoy = arr_lav + (traad_nr + 1) * ((long) pivot_indeks - arr_lav) / (traader_under_pivot) - 1;
-                        // System.out.println("Tråd: " + traad_id + " lavavdeling");
-                        if (traad_id == 57 || traad_id == 56 || traad_id == 58){
-                            System.out.println("trådrn: " + traad_nr + " arrlav: " + arr_lav + " pivotindeks: " + pivot_indeks + " tråderunderpivot: " + traader_under_pivot);
-                        }
                         traad_funksjon(arr, ny_lav, ny_hoy, traad_nr, arr_lav, pivot_indeks - 1, 0, traader_under_pivot - 1, traad_id);
                     } catch (Exception e){}
                 }
@@ -503,15 +448,10 @@ public class ParaSortV3 {
                 {
                     try
                     {
-                        // System.out.println("Tråd: " + traad_id + " før barrier: " + (barr_indeks + (int) traader_under_pivot + 1));
                         segBarriers[barr_indeks + (int) traader_under_pivot + 1].await();
                         long ny_traadnr = traad_nr - traader_under_pivot;
                         long ny_lav = (long) pivot_indeks + (ny_traadnr) * (arr_hoy - (long) pivot_indeks + 1) / (hoy_traad - traader_under_pivot + 1);
                         long ny_hoy = (long) pivot_indeks + (ny_traadnr + 1) * ((long) arr_hoy - (long) pivot_indeks + 1) / (hoy_traad - traader_under_pivot + 1) - 1;
-                        // System.out.println("Tråd: " + traad_id + " hoyavdeling");
-                        if (traad_id == 58 || traad_id == 56 || traad_id == 57){
-                            System.out.println("trådrn: " + ny_traadnr + " arrhoy: " + arr_hoy + " pivotindeks: " + pivot_indeks + " hoytråd: " + hoy_traad + " tråderunderpivot: " + traader_under_pivot + " nylav: " + ny_lav + " nyhoy: " + ny_hoy);
-                        }
                         traad_funksjon(arr, ny_lav, ny_hoy, ny_traadnr, pivot_indeks, arr_hoy, 0, hoy_traad - traader_under_pivot, traad_id);
                     } catch (Exception e){}
                 }
@@ -591,11 +531,11 @@ public class ParaSortV3 {
 
 
     public static void main(String[] args) {
-        int storrelse = 1000;
+        int storrelse = 1000000;
         int[] testArr = new LagListe().nyttArray(storrelse, 5814);
         int[] test2Arr = new LagListe().nyttArray(storrelse, 5814);
         Arrays.sort(test2Arr);
-        ParaSortV3 para = new ParaSortV3();
+        ParaSortPlattform para = new ParaSortPlattform();
         // para.sekvensiellKvikkSort(testArr, 0, storrelse-1);
         try{
             para.paraSort(64, testArr, 0, storrelse-1);

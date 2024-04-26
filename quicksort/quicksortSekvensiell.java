@@ -1,6 +1,6 @@
-class QuickSortSekvensiell{
+public class QuickSortSekvensiell{
 
-    int[] quickSort(int[] tallArray, int lav, int hoy){
+    public int[] quickSort(int[] tallArray, int lav, int hoy){
         if(lav < hoy){
             int dreiepunkt = partisjon(tallArray, lav, hoy);
             quickSort(tallArray, lav, dreiepunkt - 1);

@@ -2,9 +2,9 @@ import java.util.Arrays;
 
 public class KvikksortLagVirtuell {
     
-    int[] quickSort(int[] tallArray, int lav, int hoy, int lag, int maksLag) throws InterruptedException{
+    public int[] quickSort(int[] tallArray, int lav, int hoy, int lag, int maksLag) throws InterruptedException{
         
-        if(lag < maksLag){
+        if(lag < maksLag && hoy - lav > 10000){
             int dreiepunkt = partisjon(tallArray, lav, hoy);
             
             QuickSortTraad hoyTraad = new QuickSortTraad(tallArray, dreiepunkt+1, hoy, lag + 1, maksLag);
@@ -48,6 +48,8 @@ public class KvikksortLagVirtuell {
             this.tallArray = tallArray;
             this.lav = lav;
             this.hoy = hoy;
+            this.lag = lag;
+            this.maksLag = maksLag;
         }
         public void run(){
             try{
@@ -59,12 +61,12 @@ public class KvikksortLagVirtuell {
 
 
     public static void main(String[] args) {
-        int[] arr = {1, 5, 7, 2, 0, 6, 7, 99, -975, 6, 234, -55, 1451, 12131, 5122, 5, 7, 1, 112, 1213, 161, 161,7, 8,4, 8,49,9 ,9,65,74,47 ,47, 4767, 4767 ,77};
+        int[] arr = new LagListe().nyttArray(10000, 6);
         KvikksortLagVirtuell qss = new KvikksortLagVirtuell();
         int[] java_sortert = arr.clone();
         Arrays.sort(java_sortert);
        try{
-        int[] sort_arr = qss.quickSort(arr, 0, arr.length-1, 0, 10);
+        int[] sort_arr = qss.quickSort(arr, 0, arr.length-1, 0, 256);
        System.out.println("Ferdig");
         for (int i = 0; i < arr.length; i++){
             if (sort_arr[i] != java_sortert[i]){

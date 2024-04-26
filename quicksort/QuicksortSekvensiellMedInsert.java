@@ -1,6 +1,6 @@
-class QuickSortSekvensiellMedInsert{
+public class QuickSortSekvensiellMedInsert{
 
-    int[] quickSort(int[] tallArray, int lav, int hoy){
+    public int[] quickSort(int[] tallArray, int lav, int hoy){
         if(hoy - lav > 10){
             int dreiepunkt = partisjon(tallArray, lav, hoy);
             quickSort(tallArray, lav, dreiepunkt - 1);

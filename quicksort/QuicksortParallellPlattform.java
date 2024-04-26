@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class QuicksortParallellPlattform {
     
-    int[] quickSort(int[] tallArray, int lav, int hoy) throws InterruptedException{
+    public int[] quickSort(int[] tallArray, int lav, int hoy) throws InterruptedException{
         if(lav < hoy){
             int dreiepunkt = partisjon(tallArray, lav, hoy);
             QuickSortTraad lavTraad = new QuickSortTraad(tallArray, lav, dreiepunkt-1);

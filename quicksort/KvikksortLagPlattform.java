@@ -2,9 +2,9 @@ import java.util.Arrays;
 
 public class KvikksortLagPlattform {
     
-    int[] quickSort(int[] tallArray, int lav, int hoy, int lag, int maksLag) throws InterruptedException{
+    public int[] quickSort(int[] tallArray, int lav, int hoy, int lag, int maksLag) throws InterruptedException{
         
-        if(lag < maksLag){
+        if(lag < maksLag && hoy - lav > 1000){
             int dreiepunkt = partisjon(tallArray, lav, hoy);
             
             QuickSortTraad hoyTraad = new QuickSortTraad(tallArray, dreiepunkt+1, hoy, lag + 1, maksLag);
@@ -47,6 +47,8 @@ public class KvikksortLagPlattform {
             this.tallArray = tallArray;
             this.lav = lav;
             this.hoy = hoy;
+            this.lag = lag;
+            this.maksLag = maksLag;
         }
         public void run(){
             try{
@@ -58,21 +60,28 @@ public class KvikksortLagPlattform {
 
 
     public static void main(String[] args) {
-        int[] arr = {1, 5, 7, 2, 0, 6, 7, 99, -975, 6, 234, -55, 1451, 12131, 5122, 5, 7, 1, 112, 1213, 161, 161,7, 8,4, 8,49,9 ,9,65,74,47 ,47, 4767, 4767 ,77};
-        KvikksortLagPlattform qss = new KvikksortLagPlattform();
-        int[] java_sortert = arr.clone();
-        Arrays.sort(java_sortert);
-       try{
-        int[] sort_arr = qss.quickSort(arr, 0, arr.length-1, 0, 10);
-       System.out.println("Ferdig");
-        for (int i = 0; i < arr.length; i++){
-            if (sort_arr[i] != java_sortert[i]){
-                System.out.println("Error: " + sort_arr[i] + " != " + java_sortert[i]);
+
+        int storrelse = 1000000;
+        int[] testArr = new LagListe().nyttArray(storrelse, 5814);
+        int[] test2Arr = new LagListe().nyttArray(storrelse, 5814);
+        Arrays.sort(test2Arr);
+        KvikksortLagPlattform para = new KvikksortLagPlattform();
+        // para.sekvensiellKvikkSort(testArr, 0, storrelse-1);
+        try{
+            para.quickSort(testArr, 0, storrelse-1, 0, 3);
+        }catch(InterruptedException e){}
+        for (int i = 0; i < storrelse; i++){
+            // System.out.println(i + " arr2 " + test2Arr[i]);
+            System.out.println(i + " arr1 " + testArr[i]);
+            if (i > 0){
+                if (testArr[i] < testArr[i-1]){
+                    System.out.println("Break i " + i + " arr[i]: " + testArr[i] + " arr[i-1]: " + testArr[i-1]);
+                }
+            }
+            if (test2Arr[i] != testArr[i]){
+                System.out.println("BREAK: " + i + " test2: " + test2Arr[i] + " test: " + testArr[i]);
                 break;
             }
-            System.out.println(sort_arr[i] + " == " + java_sortert[i]);
         }
-    }
-        catch(InterruptedException e){}
     }
 }

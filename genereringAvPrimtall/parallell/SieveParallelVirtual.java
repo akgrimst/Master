@@ -25,9 +25,9 @@ public class SieveParallelVirtual {
 
             double ps = n;
 
-            int start = (int) Math.ceil((double) i * (ps/16/cores));
+            int start = (int) Math.ceil((double) i * (ps/cores));
 
-            int stop = (int) Math.ceil((double) ((i+1) * (ps/16/cores)));
+            int stop = (int) Math.ceil((double) ((i+1) * (ps/cores)));
             //SieveThread p = new SieveThread(start, stop, firstPrimes, oddNumbers);
             startVirtualThread(new SieveThread(start, stop, firstPrimes, oddNumbers));
             // Thread.startVirtualThread(p);
@@ -149,5 +149,6 @@ public class SieveParallelVirtual {
         for (int i = 0; i < sp_liste.length; i++){
             System.out.println(sp_liste[i]);
         }
+        System.err.println("endret");
     }
 }
